@@ -1,4 +1,5 @@
 const restaurantController = require('../controllers/restaurent.controllers');
+const { validatedRestaurent } = require('../middleware/restaurant.middleware');
 
 module.exports = (app) => {
   app.post('/api/restaurant/add', restaurantController.createRestaurant);
@@ -12,6 +13,21 @@ module.exports = (app) => {
   app.get(
     '/api/restaurant/rating/:ratingValue',
     restaurantController.getRestaurentBasedOnRating
+  );
+  app.put(
+    '/api/restaurant/:id',
+    [validatedRestaurent],
+    restaurantController.updateRestaurant
+  );
+  app.delete(
+    '/api/restaurant/:id',
+    [validatedRestaurent],
+    restaurantController.deleteRestaurent
+  );
+  app.delete(
+    '/api/restaurant',
+
+    restaurantController.deleteAll
   );
 };
 
