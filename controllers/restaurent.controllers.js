@@ -122,3 +122,100 @@ exports.getRestaurentBasedOnRating = async (req, res) => {
     });
   }
 };
+
+/**
+ * update restaurent based on id
+ * create middleWare to check restaurent with provided id is persent
+ * or not
+ *
+ */
+exports.updateRestaurant = async (req, res) => {
+  try {
+    if (!req.body) {
+      return res.status(400).send({
+        message: 'Restaurant data is required',
+      });
+    }
+    const restaurentId = req.params.id;
+    let restaurentResponse = await restaurant.findOne({ _id: restaurentId });
+    restaurentResponse.name =
+      req.body.name !== undefined ? req.body.name : restaurentResponse.name;
+    restaurentResponse.description =
+      req.body.description !== undefined
+        ? req.body.description
+        : restaurentResponse.description;
+    restaurentResponse.category =
+      req.body.category !== undefined
+        ? req.body.category
+        : restaurentResponse.category;
+    restaurentResponse.imageURL =
+      req.body.imageURL !== undefined
+        ? req.body.imageURL
+        : restaurentResponse.imageURL;
+    restaurentResponse.location =
+      req.body.location !== undefined
+        ? req.body.location
+        : restaurentResponse.location;
+    restaurentResponse.phone =
+      req.body.phone !== undefined ? req.body.phone : restaurentResponse.phone;
+    restaurentResponse.rating =
+      req.body.rating !== undefined
+        ? req.body.rating
+        : restaurentResponse.rating;
+
+    const savedData = await restaurentResponse.save();
+
+    res.status(200).send(savedData);
+  } catch (e) {
+    res.status(500).send({
+      message: `Some error occured while updating the Restaurant.`,
+    });
+  }
+};
+
+exports.deleteRestaurent = async (req, res) => {
+  try {
+    let restaurentId = req.params.id;
+    //get index of that id
+    let deletedData = await restaurant.findOne({ _id: restaurentId });
+    if (!deletedData) {
+      return res.status(200).send({
+        restaurant: null,
+        message: 'Restaurant deleted successfully.',
+      });
+    }
+    let restaurentResponse = await restaurant.deleteOne({ _id: restaurentId });
+    res.status(200).send({
+      restaurant: deletedData,
+      message: 'Restaurant deleted successfully.',
+    });
+  } catch (e) {
+    res.status(500).send({
+      message: `Some error occured while deleting the Restaurant.`,
+    });
+  }
+};
+
+exports.deleteAll = async (req, res) => {
+  try {
+    if (!restaurant) {
+      res.status(200).send({
+        restaurants: {
+          acknowledged: true,
+          deletedCount: 0,
+        },
+        message: 'Restaurants deleted successfully.',
+      });
+    }
+    let result = await restaurant.collection.drop();
+
+    res.status(200).send({
+      restaurants: result,
+      message: 'Restaurant deleted successfully.',
+    });
+  } catch (e) {
+    res.status(500).send({
+      message: 'Some error occured while deleting the Restaurant.',
+    });
+  }
+};
